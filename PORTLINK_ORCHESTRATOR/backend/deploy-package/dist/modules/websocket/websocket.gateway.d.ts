@@ -1,0 +1,32 @@
+import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit } from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+export declare class WebSocketEventsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+    server: Server;
+    private readonly logger;
+    afterInit(server: Server): void;
+    handleConnection(client: Socket): void;
+    handleDisconnect(client: Socket): void;
+    broadcastAssetCreated(asset: any): void;
+    broadcastAssetUpdated(asset: any): void;
+    broadcastAssetStatusChanged(asset: any): void;
+    broadcastAssetDeleted(assetId: string): void;
+    broadcastShipVisitCreated(shipVisit: any): void;
+    broadcastShipVisitUpdated(shipVisit: any): void;
+    broadcastShipVisitStatusChanged(shipVisit: any): void;
+    broadcastShipVisitArrival(shipVisit: any): void;
+    broadcastShipVisitDeparture(shipVisit: any): void;
+    broadcastShipVisitDeleted(shipVisitId: string): void;
+    broadcastScheduleCreated(schedule: any): void;
+    broadcastScheduleUpdated(schedule: any): void;
+    broadcastScheduleStatusChanged(schedule: any): void;
+    broadcastScheduleConflict(conflict: any): void;
+    broadcastScheduleDeleted(scheduleId: string): void;
+    broadcastTaskCreated(task: any): void;
+    broadcastTaskUpdated(task: any): void;
+    broadcastTaskStatusChanged(task: any): void;
+    broadcastTaskProgressUpdated(task: any): void;
+    broadcastTaskAssigned(task: any): void;
+    broadcastTaskDeleted(taskId: string): void;
+    broadcastSystemAlert(alert: any): void;
+    broadcastSystemNotification(notification: any): void;
+}

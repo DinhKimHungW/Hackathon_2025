@@ -1,0 +1,11 @@
+{
+  "name": "portlink-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "serve -s . -p 8080"
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  }
+}

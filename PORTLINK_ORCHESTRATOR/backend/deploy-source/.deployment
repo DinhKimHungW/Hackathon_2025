@@ -1,0 +1,2 @@
+﻿[config]
+command = bash -c "npm install && npm run build && node dist/main.js"

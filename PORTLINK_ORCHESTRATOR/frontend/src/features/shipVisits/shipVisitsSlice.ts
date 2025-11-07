@@ -19,6 +19,8 @@ export interface ShipVisit {
   shipName: string;
   imoNumber: string;
   vesselType: string;
+  // Backwards-compatible alias used in several UI components
+  shipType?: string;
   flag: string;
   grossTonnage: number;
   eta: string; // ISO datetime
@@ -27,6 +29,8 @@ export interface ShipVisit {
   actualDeparture?: string;
   berthId?: string;
   berthName?: string;
+  // Backwards-compatible alias used in several UI components
+  berth?: string;
   visitPurpose: string;
   status: ShipVisitStatus;
   agentCompany?: string;
@@ -188,7 +192,10 @@ const normalizeShipVisit = (input: ShipVisit | ShipVisitApiModel | null | undefi
     actualArrival: ataIso,
     actualDeparture: atdIso,
     berthId: data.berthId || (data as ShipVisitApiModel).berthLocation || data.berthName || undefined,
-    berthName: safeString(data.berthName ?? (data as ShipVisitApiModel).berthLocation, 'Unassigned'),
+  berthName: safeString(data.berthName ?? (data as ShipVisitApiModel).berthLocation, 'Unassigned'),
+  // compatibility aliases used by older UI components
+  berth: safeString(data.berthName ?? (data as ShipVisitApiModel).berthLocation, 'Unassigned'),
+  shipType: data.vesselType || cargoDetails?.type || 'General Cargo',
     visitPurpose: safeString(data.visitPurpose ?? (data as ShipVisitApiModel).remarks, 'General Operations'),
     status: (data.status as ShipVisitStatus) || 'PLANNED',
     agentCompany: safeString(data.agentCompany ?? (data as ShipVisitApiModel).agent, 'Not Assigned'),

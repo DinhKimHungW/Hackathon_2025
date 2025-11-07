@@ -1,0 +1,652 @@
+import { AppDataSource } from '../../config/datasource';
+import { User, UserRole } from '../../modules/users/entities/user.entity';
+import { Asset, AssetType, AssetStatus } from '../../modules/assets/entities/asset.entity';
+import { ShipVisit, ShipVisitStatus, VesselType } from '../../modules/ship-visits/entities/ship-visit.entity';
+import { Task, TaskType, TaskStatus, TaskPriority } from '../../modules/tasks/entities/task.entity';
+import { Schedule } from '../../modules/schedules/entities/schedule.entity';
+import { Conflict, ConflictType, ConflictSeverity, ConflictStatus } from '../../modules/conflicts/entities/conflict.entity';
+import * as bcrypt from 'bcrypt';
+
+async function seed() {
+  console.log('🌱 Starting database seeding...');
+
+  try {
+    // Initialize data source
+    await AppDataSource.initialize();
+    console.log('✅ Database connection established');
+
+    const userRepository = AppDataSource.getRepository(User);
+    const assetRepository = AppDataSource.getRepository(Asset);
+    const shipVisitRepository = AppDataSource.getRepository(ShipVisit);
+    const taskRepository = AppDataSource.getRepository(Task);
+    const scheduleRepository = AppDataSource.getRepository(Schedule);
+    const conflictRepository = AppDataSource.getRepository(Conflict);
+
+    // Seed Users
+    console.log('👤 Seeding users...');
+    
+    const adminExists = await userRepository.findOne({ where: { email: 'admin@portlink.com' } });
+    
+    if (!adminExists) {
+      const hashedPassword = await bcrypt.hash('Admin@123', 10);
+      
+      const users = [
+        {
+          username: 'admin',
+          email: 'admin@portlink.com',
+          passwordHash: hashedPassword,
+          role: UserRole.ADMIN,
+          fullName: 'System Administrator',
+          isActive: true,
+          language: 'vi',
+        },
+        {
+          username: 'manager',
+          email: 'manager@portlink.com',
+          passwordHash: await bcrypt.hash('Manager@123', 10),
+          role: UserRole.MANAGER,
+          fullName: 'Port Manager',
+          isActive: true,
+          language: 'vi',
+        },
+        {
+          username: 'operations',
+          email: 'operations@portlink.com',
+          passwordHash: await bcrypt.hash('Ops@123', 10),
+          role: UserRole.OPERATIONS,
+          fullName: 'Operations Staff',
+          isActive: true,
+          language: 'vi',
+        },
+        {
+          username: 'driver',
+          email: 'driver@portlink.com',
+          passwordHash: await bcrypt.hash('Driver@123', 10),
+          role: UserRole.DRIVER,
+          fullName: 'Truck Driver',
+          isActive: true,
+          language: 'vi',
+        },
+      ];
+
+      await userRepository.save(users);
+      console.log(`✅ Created ${users.length} users`);
+    } else {
+      console.log('ℹ️  Users already exist, skipping user seeding');
+    }
+
+    // Seed Assets
+    console.log('🏗️  Seeding assets...');
+    
+    const assetExists = await assetRepository.findOne({ where: { assetCode: 'CRANE-001' } });
+    
+    if (!assetExists) {
+      const assets = [
+        // Cranes
+        {
+          assetCode: 'CRANE-001',
+          name: 'Gantry Crane #1',
+          type: AssetType.CRANE,
+          status: AssetStatus.AVAILABLE,
+          capacity: 50,
+          capacityUnit: 'tons',
+          location: 'Berth A1',
+          specifications: {
+            manufacturer: 'Liebherr',
+            model: 'LHM 550',
+            outreach: '54m',
+            liftHeight: '42m',
+          },
+        },
+        {
+          assetCode: 'CRANE-002',
+          name: 'Gantry Crane #2',
+          type: AssetType.CRANE,
+          status: AssetStatus.AVAILABLE,
+          capacity: 50,
+          capacityUnit: 'tons',
+          location: 'Berth A2',
+          specifications: {
+            manufacturer: 'Liebherr',
+            model: 'LHM 550',
+            outreach: '54m',
+            liftHeight: '42m',
+          },
+        },
+        {
+          assetCode: 'CRANE-003',
+          name: 'Gantry Crane #3',
+          type: AssetType.CRANE,
+          status: AssetStatus.MAINTENANCE,
+          capacity: 45,
+          capacityUnit: 'tons',
+          location: 'Berth B1',
+          specifications: {
+            manufacturer: 'Konecranes',
+            model: 'Gottwald G HMK 7608',
+            outreach: '51m',
+            liftHeight: '40m',
+          },
+        },
+        // Reach Stackers
+        {
+          assetCode: 'RS-001',
+          name: 'Reach Stacker #1',
+          type: AssetType.REACH_STACKER,
+          status: AssetStatus.AVAILABLE,
+          capacity: 45,
+          capacityUnit: 'tons',
+          location: 'Yard Area 1',
+          specifications: {
+            manufacturer: 'Kalmar',
+            model: 'DRG450-65S5',
+            maxReachHeight: '15.2m',
+            stackingCapacity: '5 high',
+          },
+        },
+        {
+          assetCode: 'RS-002',
+          name: 'Reach Stacker #2',
+          type: AssetType.REACH_STACKER,
+          status: AssetStatus.IN_USE,
+          capacity: 45,
+          capacityUnit: 'tons',
+          location: 'Yard Area 2',
+          specifications: {
+            manufacturer: 'Kalmar',
+            model: 'DRG450-65S5',
+            maxReachHeight: '15.2m',
+            stackingCapacity: '5 high',
+          },
+        },
+        // Trucks
+        {
+          assetCode: 'TRUCK-001',
+          name: 'Container Truck #1',
+          type: AssetType.TRUCK,
+          status: AssetStatus.AVAILABLE,
+          capacity: 30,
+          capacityUnit: 'tons',
+          location: 'Gate Area',
+          specifications: {
+            manufacturer: 'Volvo',
+            model: 'FMX 420',
+            containerSize: '40ft',
+            fuelType: 'Diesel',
+          },
+        },
+        {
+          assetCode: 'TRUCK-002',
+          name: 'Container Truck #2',
+          type: AssetType.TRUCK,
+          status: AssetStatus.AVAILABLE,
+          capacity: 30,
+          capacityUnit: 'tons',
+          location: 'Gate Area',
+        },
+        {
+          assetCode: 'TRUCK-003',
+          name: 'Container Truck #3',
+          type: AssetType.TRUCK,
+          status: AssetStatus.IN_USE,
+          capacity: 30,
+          capacityUnit: 'tons',
+          location: 'Yard Area 1',
+        },
+        // Yard Tractors
+        {
+          assetCode: 'YT-001',
+          name: 'Yard Tractor #1',
+          type: AssetType.YARD_TRACTOR,
+          status: AssetStatus.AVAILABLE,
+          capacity: 25,
+          capacityUnit: 'tons',
+          location: 'Yard Area 1',
+          specifications: {
+            manufacturer: 'Terberg',
+            model: 'YT222',
+            couplingHeight: 'Adjustable',
+          },
+        },
+        {
+          assetCode: 'YT-002',
+          name: 'Yard Tractor #2',
+          type: AssetType.YARD_TRACTOR,
+          status: AssetStatus.AVAILABLE,
+          capacity: 25,
+          capacityUnit: 'tons',
+          location: 'Yard Area 2',
+        },
+        // Forklifts
+        {
+          assetCode: 'FL-001',
+          name: 'Forklift #1',
+          type: AssetType.FORKLIFT,
+          status: AssetStatus.AVAILABLE,
+          capacity: 5,
+          capacityUnit: 'tons',
+          location: 'Warehouse A',
+          specifications: {
+            manufacturer: 'Toyota',
+            model: '8FD50',
+            fuelType: 'Electric',
+            batteryCapacity: '48V 500Ah',
+          },
+        },
+        {
+          assetCode: 'FL-002',
+          name: 'Forklift #2',
+          type: AssetType.FORKLIFT,
+          status: AssetStatus.AVAILABLE,
+          capacity: 5,
+          capacityUnit: 'tons',
+          location: 'Warehouse B',
+        },
+      ];
+
+      await assetRepository.save(assets);
+      console.log(`✅ Created ${assets.length} assets`);
+    } else {
+      console.log('ℹ️  Assets already exist, skipping asset seeding');
+    }
+
+    // Seed Ship Visits
+    console.log('🚢 Seeding ship visits...');
+    
+    const shipVisitExists = await shipVisitRepository.findOne({ where: { vesselName: 'COSCO SHIPPING VIRGO' } });
+    
+    if (!shipVisitExists) {
+      const now = new Date();
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const nextWeek = new Date(now);
+      nextWeek.setDate(nextWeek.getDate() + 7);
+
+      const shipVisits = [
+        {
+          vesselName: 'COSCO SHIPPING VIRGO',
+          imoNumber: 'IMO9744465',
+          vesselType: VesselType.CONTAINER,
+          eta: yesterday,
+          etd: tomorrow,
+          ata: yesterday,
+          status: ShipVisitStatus.IN_PROGRESS,
+          berthName: 'Berth CT1',
+          agent: 'Cosco Shipping Agency',
+          cargoType: 'Containers',
+          cargoVolume: 5500,
+          cargoVolumeUnit: 'TEU',
+          length: 366,
+          width: 51,
+          draft: 14.5,
+          grossTonnage: 140000,
+          flag: 'Hong Kong',
+          callSign: 'VRHU8',
+          voyageNumber: 'VOY-2025-001',
+        },
+        {
+          vesselName: 'MSC OSCAR',
+          imoNumber: 'IMO9703291',
+          vesselType: VesselType.CONTAINER,
+          eta: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000),
+          etd: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000),
+          ata: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000),
+          status: ShipVisitStatus.IN_PROGRESS,
+          berthName: 'Berth CT2',
+          agent: 'MSC Agency Vietnam',
+          cargoType: 'Containers',
+          cargoVolume: 6200,
+          cargoVolumeUnit: 'TEU',
+          length: 395,
+          width: 59,
+          draft: 16,
+          grossTonnage: 196000,
+          flag: 'Panama',
+          callSign: 'HP4528',
+          voyageNumber: 'VOY-2025-002',
+        },
+        {
+          vesselName: 'EVER GOLDEN',
+          imoNumber: 'IMO9299645',
+          vesselType: VesselType.CONTAINER,
+          eta: now,
+          etd: tomorrow,
+          ata: now,
+          status: ShipVisitStatus.IN_PROGRESS,
+          berthName: 'Berth CT4',
+          agent: 'Evergreen Shipping Agency',
+          cargoType: 'Containers',
+          cargoVolume: 4800,
+          cargoVolumeUnit: 'TEU',
+          length: 334,
+          width: 43,
+          draft: 13.5,
+          grossTonnage: 108000,
+          flag: 'Taiwan',
+          callSign: 'BMYH',
+          voyageNumber: 'VOY-2025-003',
+        },
+        {
+          vesselName: 'MAERSK EINDHOVEN',
+          imoNumber: 'IMO9632520',
+          vesselType: VesselType.CONTAINER,
+          eta: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
+          etd: now,
+          ata: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
+          atd: now,
+          status: ShipVisitStatus.DEPARTED,
+          berthName: 'Berth CT6',
+          agent: 'Maersk Line Vietnam',
+          cargoType: 'Containers',
+          cargoVolume: 5200,
+          cargoVolumeUnit: 'TEU',
+          length: 347,
+          width: 48,
+          draft: 14.2,
+          grossTonnage: 116000,
+          flag: 'Denmark',
+          callSign: 'OWJF2',
+          voyageNumber: 'VOY-2025-004',
+        },
+        {
+          vesselName: 'ONE COMMITMENT',
+          imoNumber: 'IMO9845123',
+          vesselType: VesselType.CONTAINER,
+          eta: now,
+          etd: new Date(now.getTime() + 1.5 * 24 * 60 * 60 * 1000),
+          ata: now,
+          status: ShipVisitStatus.IN_PROGRESS,
+          berthName: 'Berth CT8',
+          agent: 'ONE Line Vietnam',
+          cargoType: 'Containers',
+          cargoVolume: 4200,
+          cargoVolumeUnit: 'TEU',
+          length: 300,
+          width: 43,
+          draft: 13,
+          grossTonnage: 95000,
+          flag: 'Singapore',
+          callSign: '9V2345',
+          voyageNumber: 'VOY-2025-005',
+        },
+        {
+          vesselName: 'PACIFIC HARMONY',
+          imoNumber: 'IMO9756432',
+          vesselType: VesselType.BULK,
+          eta: tomorrow,
+          etd: new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000),
+          status: ShipVisitStatus.SCHEDULED,
+          berthName: 'Berth B3',
+          agent: 'Pacific Shipping',
+          cargoType: 'Coal',
+          cargoVolume: 45000,
+          cargoVolumeUnit: 'tons',
+          length: 225,
+          width: 32,
+          draft: 12,
+          grossTonnage: 38000,
+          flag: 'Liberia',
+          callSign: 'A8BC9',
+          voyageNumber: 'VOY-2025-006',
+        },
+        {
+          vesselName: 'ORIENTAL STAR',
+          imoNumber: 'IMO9823456',
+          vesselType: VesselType.TANKER,
+          eta: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000),
+          etd: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000),
+          status: ShipVisitStatus.SCHEDULED,
+          berthName: 'Berth T1',
+          agent: 'Oriental Tanker Services',
+          cargoType: 'Crude Oil',
+          cargoVolume: 85000,
+          cargoVolumeUnit: 'tons',
+          length: 280,
+          width: 44,
+          draft: 15,
+          grossTonnage: 120000,
+          flag: 'Marshall Islands',
+          callSign: 'V7QR3',
+          voyageNumber: 'VOY-2025-007',
+        },
+        {
+          vesselName: 'SEA PRINCESS',
+          imoNumber: 'IMO9678912',
+          vesselType: VesselType.RORO,
+          eta: nextWeek,
+          etd: new Date(nextWeek.getTime() + 2 * 24 * 60 * 60 * 1000),
+          status: ShipVisitStatus.SCHEDULED,
+          berthName: 'Berth R1',
+          agent: 'RoRo Logistics Vietnam',
+          cargoType: 'Vehicles',
+          cargoVolume: 350,
+          cargoVolumeUnit: 'units',
+          length: 180,
+          width: 28,
+          draft: 8,
+          grossTonnage: 15000,
+          flag: 'Japan',
+          callSign: 'JKLM5',
+          voyageNumber: 'VOY-2025-008',
+        },
+      ];
+
+      const savedShipVisits = await shipVisitRepository.save(shipVisits);
+      console.log(`✅ Created ${savedShipVisits.length} ship visits`);
+
+      // Seed Tasks linked to ship visits
+      console.log('📋 Seeding tasks...');
+      
+      const cranes = await assetRepository.find({ where: { type: AssetType.CRANE } });
+      const trucks = await assetRepository.find({ where: { type: AssetType.TRUCK } });
+      
+      const tasks = [
+        // Tasks for COSCO SHIPPING VIRGO
+        {
+          taskCode: 'TASK-001',
+          title: 'Unload containers from COSCO VIRGO',
+          description: 'Discharge 2500 TEU from vessel COSCO SHIPPING VIRGO',
+          type: TaskType.DISCHARGE,
+          status: TaskStatus.IN_PROGRESS,
+          priority: TaskPriority.HIGH,
+          shipVisit: savedShipVisits[0],
+          assignedAssets: cranes.slice(0, 2),
+          startTime: yesterday,
+          estimatedEndTime: tomorrow,
+          actualStartTime: yesterday,
+          completionPercentage: 65,
+        },
+        {
+          taskCode: 'TASK-002',
+          title: 'Load containers to COSCO VIRGO',
+          description: 'Load 2200 TEU onto vessel COSCO SHIPPING VIRGO',
+          type: TaskType.LOAD,
+          status: TaskStatus.PENDING,
+          priority: TaskPriority.HIGH,
+          shipVisit: savedShipVisits[0],
+          assignedAssets: cranes.slice(0, 2),
+          startTime: now,
+          estimatedEndTime: tomorrow,
+        },
+        // Tasks for MSC OSCAR
+        {
+          taskCode: 'TASK-003',
+          title: 'Discharge MSC OSCAR cargo',
+          description: 'Unload 3100 TEU from MSC OSCAR',
+          type: TaskType.DISCHARGE,
+          status: TaskStatus.IN_PROGRESS,
+          priority: TaskPriority.HIGH,
+          shipVisit: savedShipVisits[1],
+          assignedAssets: cranes.slice(0, 3),
+          startTime: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000),
+          estimatedEndTime: now,
+          actualStartTime: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000),
+          completionPercentage: 85,
+        },
+        {
+          taskCode: 'TASK-004',
+          title: 'Load MSC OSCAR cargo',
+          description: 'Load 2900 TEU onto MSC OSCAR',
+          type: TaskType.LOAD,
+          status: TaskStatus.SCHEDULED,
+          priority: TaskPriority.HIGH,
+          shipVisit: savedShipVisits[1],
+          assignedAssets: cranes.slice(0, 3),
+          startTime: now,
+          estimatedEndTime: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000),
+        },
+        // Tasks for EVER GOLDEN
+        {
+          taskCode: 'TASK-005',
+          title: 'Unload EVER GOLDEN containers',
+          description: 'Discharge 2400 TEU from EVER GOLDEN',
+          type: TaskType.DISCHARGE,
+          status: TaskStatus.IN_PROGRESS,
+          priority: TaskPriority.MEDIUM,
+          shipVisit: savedShipVisits[2],
+          assignedAssets: [cranes[0], cranes[1]],
+          startTime: now,
+          estimatedEndTime: tomorrow,
+          actualStartTime: now,
+          completionPercentage: 40,
+        },
+        // Maintenance tasks
+        {
+          taskCode: 'TASK-006',
+          title: 'Crane #3 preventive maintenance',
+          description: 'Scheduled maintenance for Gantry Crane #3',
+          type: TaskType.MAINTENANCE,
+          status: TaskStatus.IN_PROGRESS,
+          priority: TaskPriority.MEDIUM,
+          assignedAssets: [cranes[2]],
+          startTime: yesterday,
+          estimatedEndTime: tomorrow,
+          actualStartTime: yesterday,
+          completionPercentage: 70,
+        },
+        // Yard tasks
+        {
+          taskCode: 'TASK-007',
+          title: 'Yard reorganization - Area 1',
+          description: 'Reorganize containers in Yard Area 1 for better space utilization',
+          type: TaskType.YARD_OPERATION,
+          status: TaskStatus.SCHEDULED,
+          priority: TaskPriority.LOW,
+          assignedAssets: trucks.slice(0, 2),
+          startTime: tomorrow,
+          estimatedEndTime: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000),
+        },
+        {
+          taskCode: 'TASK-008',
+          title: 'Container inspection',
+          description: 'Customs inspection for 50 containers',
+          type: TaskType.INSPECTION,
+          status: TaskStatus.PENDING,
+          priority: TaskPriority.HIGH,
+          startTime: now,
+          estimatedEndTime: new Date(now.getTime() + 4 * 60 * 60 * 1000),
+        },
+      ];
+
+      const savedTasks = await taskRepository.save(tasks);
+      console.log(`✅ Created ${savedTasks.length} tasks`);
+
+      // Seed Schedules
+      console.log('📅 Seeding schedules...');
+      
+      const schedules = savedShipVisits.map((visit, index) => ({
+        shipVisit: visit,
+        scheduledEta: visit.eta,
+        scheduledEtd: visit.etd,
+        actualAta: visit.ata,
+        actualAtd: visit.atd,
+        berthName: visit.berthName,
+        berthAllocationTime: new Date(visit.eta.getTime() - 24 * 60 * 60 * 1000),
+        pilotBookingTime: new Date(visit.eta.getTime() - 12 * 60 * 60 * 1000),
+        tugboatCount: visit.vesselType === VesselType.CONTAINER ? 2 : 1,
+        linesmen: 4,
+        notes: `Schedule for ${visit.vesselName}`,
+        isConfirmed: visit.status !== ShipVisitStatus.SCHEDULED,
+      }));
+
+      const savedSchedules = await scheduleRepository.save(schedules);
+      console.log(`✅ Created ${savedSchedules.length} schedules`);
+
+      // Seed Conflicts
+      console.log('⚠️  Seeding conflicts...');
+      
+      const conflicts = [
+        {
+          conflictCode: 'CONF-001',
+          title: 'Berth allocation conflict',
+          description: 'MSC OSCAR and EVER GOLDEN both scheduled for Berth CT4',
+          type: ConflictType.BERTH_ALLOCATION,
+          severity: ConflictSeverity.HIGH,
+          status: ConflictStatus.OPEN,
+          affectedShipVisits: [savedShipVisits[1], savedShipVisits[2]],
+          affectedAssets: [],
+          detectedAt: now,
+          suggestedResolution: 'Reassign EVER GOLDEN to Berth CT5',
+        },
+        {
+          conflictCode: 'CONF-002',
+          title: 'Crane resource conflict',
+          description: 'Insufficient cranes for simultaneous operations on COSCO VIRGO and MSC OSCAR',
+          type: ConflictType.RESOURCE_ALLOCATION,
+          severity: ConflictSeverity.MEDIUM,
+          status: ConflictStatus.IN_PROGRESS,
+          affectedShipVisits: [savedShipVisits[0], savedShipVisits[1]],
+          affectedAssets: cranes.slice(0, 3),
+          detectedAt: yesterday,
+          suggestedResolution: 'Stagger loading operations by 4 hours',
+        },
+        {
+          conflictCode: 'CONF-003',
+          title: 'Schedule delay - MAERSK EINDHOVEN',
+          description: 'Departure delayed by 6 hours due to weather conditions',
+          type: ConflictType.SCHEDULE_DELAY,
+          severity: ConflictSeverity.LOW,
+          status: ConflictStatus.RESOLVED,
+          affectedShipVisits: [savedShipVisits[3]],
+          detectedAt: new Date(now.getTime() - 6 * 60 * 60 * 1000),
+          resolvedAt: now,
+          resolution: 'Vessel departed at adjusted time',
+        },
+      ];
+
+      const savedConflicts = await conflictRepository.save(conflicts);
+      console.log(`✅ Created ${savedConflicts.length} conflicts`);
+    } else {
+      console.log('ℹ️  Ship visits already exist, skipping extended seeding');
+    }
+
+    console.log('');
+    console.log('✨ Database seeding completed successfully!');
+    console.log('');
+    console.log('📋 Default Credentials:');
+    console.log('   Admin:      admin@portlink.com / Admin@123');
+    console.log('   Manager:    manager@portlink.com / Manager@123');
+    console.log('   Operations: operations@portlink.com / Ops@123');
+    console.log('   Driver:     driver@portlink.com / Driver@123');
+    console.log('');
+
+  } catch (error) {
+    console.error('❌ Error seeding database:', error);
+    throw error;
+  } finally {
+    await AppDataSource.destroy();
+  }
+}
+
+// Run seed
+seed()
+  .then(() => {
+    console.log('🎉 Seeding process finished');
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error('💥 Seeding process failed:', error);
+    process.exit(1);
+  });

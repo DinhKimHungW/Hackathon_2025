@@ -39,14 +39,26 @@ export default function ShipVisitTable({
   selectionMode = false,
 }: ShipVisitTableProps) {
   const getProgress = (status: string) => {
+    // Support both legacy and current status enum values
     switch (status) {
-      case 'SCHEDULED': return 10;
-      case 'ARRIVED': return 30;
-      case 'BERTHING': return 50;
-      case 'LOADING': return 70;
-      case 'UNLOADING': return 70;
-      case 'DEPARTED': return 100;
-      default: return 0;
+      case 'PLANNED':
+      case 'SCHEDULED':
+        return 10;
+      case 'ARRIVED':
+        return 30;
+      case 'BERTHING':
+      case 'IN_PROGRESS':
+        return 50;
+      case 'LOADING':
+      case 'UNLOADING':
+        return 70;
+      case 'COMPLETED':
+      case 'DEPARTED':
+        return 100;
+      case 'CANCELLED':
+        return 0;
+      default:
+        return 0;
     }
   };
 
@@ -182,7 +194,7 @@ export default function ShipVisitTable({
                 {/* Ship Type */}
                 <TableCell>
                   <Chip
-                    label={shipVisit.shipType}
+                    label={shipVisit.shipType ?? shipVisit.vesselType}
                     size="small"
                     variant="outlined"
                     sx={{ borderRadius: 1 }}
@@ -206,7 +218,7 @@ export default function ShipVisitTable({
                 {/* Berth */}
                 <TableCell>
                   <Typography variant="body2" color="text.secondary">
-                    {shipVisit.berth || '-'}
+                    {shipVisit.berth ?? shipVisit.berthName ?? '-'}
                   </Typography>
                 </TableCell>
 

@@ -46,14 +46,28 @@ function ShipVisitListItem({
 
   // Memoize progress calculation
   const progress = useMemo(() => {
-    switch (shipVisit.status) {
-      case 'SCHEDULED': return 10;
-      case 'ARRIVED': return 30;
-      case 'BERTHING': return 50;
-      case 'LOADING': return 70;
-      case 'UNLOADING': return 70;
-      case 'DEPARTED': return 100;
-      default: return 0;
+    // Cast to string to allow matching legacy status values that are
+    // not part of the current ShipVisitStatus union.
+    const s = shipVisit.status as string;
+    switch (s) {
+      case 'PLANNED':
+      case 'SCHEDULED':
+        return 10;
+      case 'ARRIVED':
+        return 30;
+      case 'BERTHING':
+      case 'IN_PROGRESS':
+        return 50;
+      case 'LOADING':
+      case 'UNLOADING':
+        return 70;
+      case 'COMPLETED':
+      case 'DEPARTED':
+        return 100;
+      case 'CANCELLED':
+        return 0;
+      default:
+        return 0;
     }
   }, [shipVisit.status]);
 
@@ -128,7 +142,7 @@ function ShipVisitListItem({
               }}
             />
             <Chip
-              label={shipVisit.shipType}
+              label={shipVisit.shipType ?? shipVisit.vesselType}
               size="small"
               variant="outlined"
               sx={{ borderRadius: 1 }}
@@ -140,7 +154,7 @@ function ShipVisitListItem({
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <Anchor fontSize="small" color="action" />
               <Typography variant="body2" color="text.secondary">
-                {shipVisit.berth || 'No berth assigned'}
+                {shipVisit.berth ?? shipVisit.berthName ?? 'No berth assigned'}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
