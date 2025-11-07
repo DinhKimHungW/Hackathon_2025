@@ -1,0 +1,26 @@
+# Test Conflicts API
+
+## Get all conflicts
+GET http://localhost:3000/api/v1/conflicts
+Authorization: Bearer {{token}}
+
+## Get unresolved conflicts
+GET http://localhost:3000/api/v1/conflicts/unresolved
+Authorization: Bearer {{token}}
+
+## Get conflict stats
+GET http://localhost:3000/api/v1/conflicts/stats
+Authorization: Bearer {{token}}
+
+## Get specific conflict
+GET http://localhost:3000/api/v1/conflicts/{{conflictId}}
+Authorization: Bearer {{token}}
+
+## Resolve a conflict
+PATCH http://localhost:3000/api/v1/conflicts/{{conflictId}}/resolve
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "resolutionNotes": "Issue resolved by reassigning resources"
+}

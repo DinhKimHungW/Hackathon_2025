@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalStorage Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: white;
+            color: #333;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 { color: #667eea; text-align: center; }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        button:hover { background: #5568d3; }
+        .result {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .info { color: #667eea; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 LocalStorage Utility Test</h1>
+        
+        <div style="margin: 20px 0;">
+            <button onclick="testAll()">🚀 Run All Tests</button>
+            <button onclick="clearStorage()">🧹 Clear localStorage</button>
+            <button onclick="checkCurrentState()">📊 Check Current State</button>
+            <button onclick="simulateCorruptedData()">💥 Simulate Corrupted Data</button>
+        </div>
+        
+        <div id="output" class="result"></div>
+    </div>
+
+    <script type="module">
+        // Copy of localStorage utility
+        const localStorageUtils = {
+            getJSON: (key, defaultValue = null) => {
+                try {
+                    const item = localStorage.getItem(key);
+                    if (!item || item === 'undefined' || item === 'null') {
+                        return defaultValue;
+                    }
+                    return JSON.parse(item);
+                } catch (error) {
+                    console.error(`Error parsing localStorage key "${key}":`, error);
+                    return defaultValue;
+                }
+            },
+            setJSON: (key, value) => {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                } catch (error) {
+                    console.error(`Error setting localStorage key "${key}":`, error);
+                }
+            },
+            getString: (key) => {
+                try {
+                    const item = localStorage.getItem(key);
+                    if (!item || item === 'undefined' || item === 'null') {
+                        return null;
+                    }
+                    return item;
+                } catch (error) {
+                    console.error(`Error getting localStorage key "${key}":`, error);
+                    return null;
+                }
+            },
+            setString: (key, value) => {
+                try {
+                    localStorage.setItem(key, value);
+                } catch (error) {
+                    console.error(`Error setting localStorage key "${key}":`, error);
+                }
+            },
+            remove: (key) => {
+                try {
+                    localStorage.removeItem(key);
+                } catch (error) {
+                    console.error(`Error removing localStorage key "${key}":`, error);
+                }
+            },
+            clear: () => {
+                try {
+                    localStorage.clear();
+                } catch (error) {
+                    console.error(`Error clearing localStorage:`, error);
+                }
+            },
+            has: (key) => {
+                try {
+                    const item = localStorage.getItem(key);
+                    return !!(item && item !== 'undefined' && item !== 'null');
+                } catch (error) {
+                    console.error(`Error checking localStorage key "${key}":`, error);
+                    return false;
+                }
+            }
+        };
+
+        // Make functions global
+        window.localStorageUtils = localStorageUtils;
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const span = document.createElement('span');
+            span.className = type;
+            span.textContent = message + '\n';
+            output.appendChild(document.createTextNode(message + '\n'));
+        }
+
+        function clear() {
+            document.getElementById('output').innerHTML = '';
+        }
+
+        window.testAll = function() {
+            clear();
+            log('🧪 Starting LocalStorage Utility Tests...\n', 'info');
+
+            // Test 1: Normal JSON operations
+            log('Test 1: Normal JSON operations');
+            const testUser = { id: '1', name: 'Test User', email: 'test@test.com' };
+            localStorageUtils.setJSON('test_user', testUser);
+            const retrieved = localStorageUtils.getJSON('test_user');
+            if (JSON.stringify(retrieved) === JSON.stringify(testUser)) {
+                log('✅ PASS: JSON set/get works correctly', 'success');
+            } else {
+                log('❌ FAIL: JSON set/get failed', 'error');
+            }
+
+            // Test 2: Handle undefined string
+            log('\nTest 2: Handle "undefined" string');
+            localStorage.setItem('test_undefined', 'undefined');
+            const undefinedResult = localStorageUtils.getJSON('test_undefined', null);
+            if (undefinedResult === null) {
+                log('✅ PASS: "undefined" string returns defaultValue', 'success');
+            } else {
+                log('❌ FAIL: "undefined" string not handled', 'error');
+            }
+
+            // Test 3: Handle null string
+            log('\nTest 3: Handle "null" string');
+            localStorage.setItem('test_null', 'null');
+            const nullResult = localStorageUtils.getJSON('test_null', null);
+            if (nullResult === null) {
+                log('✅ PASS: "null" string returns defaultValue', 'success');
+            } else {
+                log('❌ FAIL: "null" string not handled', 'error');
+            }
+
+            // Test 4: Handle missing key
+            log('\nTest 4: Handle missing key');
+            const missingResult = localStorageUtils.getJSON('nonexistent_key', { default: true });
+            if (missingResult && missingResult.default === true) {
+                log('✅ PASS: Missing key returns defaultValue', 'success');
+            } else {
+                log('❌ FAIL: Missing key not handled', 'error');
+            }
+
+            // Test 5: String operations
+            log('\nTest 5: String operations');
+            localStorageUtils.setString('test_token', 'abc123xyz');
+            const token = localStorageUtils.getString('test_token');
+            if (token === 'abc123xyz') {
+                log('✅ PASS: String set/get works correctly', 'success');
+            } else {
+                log('❌ FAIL: String set/get failed', 'error');
+            }
+
+            // Test 6: has() method
+            log('\nTest 6: has() method');
+            localStorageUtils.setString('test_has', 'exists');
+            const hasTrue = localStorageUtils.has('test_has');
+            const hasFalse = localStorageUtils.has('nonexistent');
+            localStorage.setItem('test_has_undefined', 'undefined');
+            const hasUndefined = localStorageUtils.has('test_has_undefined');
+            
+            if (hasTrue && !hasFalse && !hasUndefined) {
+                log('✅ PASS: has() method works correctly', 'success');
+            } else {
+                log('❌ FAIL: has() method failed', 'error');
+            }
+
+            // Test 7: Invalid JSON
+            log('\nTest 7: Invalid JSON handling');
+            localStorage.setItem('test_invalid', '{invalid json}');
+            const invalidResult = localStorageUtils.getJSON('test_invalid', { fallback: true });
+            if (invalidResult && invalidResult.fallback === true) {
+                log('✅ PASS: Invalid JSON returns defaultValue', 'success');
+            } else {
+                log('❌ FAIL: Invalid JSON not handled', 'error');
+            }
+
+            log('\n✅ All tests completed!', 'success');
+        };
+
+        window.clearStorage = function() {
+            localStorageUtils.clear();
+            clear();
+            log('🧹 localStorage cleared successfully!', 'success');
+        };
+
+        window.checkCurrentState = function() {
+            clear();
+            log('📊 Current localStorage state:\n', 'info');
+            
+            const keys = ['user', 'access_token', 'refresh_token', 'rememberMe', 'rememberedEmail'];
+            
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                log(`${key}: ${value || '(not set)'}`);
+            });
+
+            log('\n🔍 Using localStorageUtils:', 'info');
+            const user = localStorageUtils.getJSON('user');
+            const token = localStorageUtils.getString('access_token');
+            const hasToken = localStorageUtils.has('access_token');
+            
+            log(`user: ${JSON.stringify(user, null, 2)}`);
+            log(`access_token: ${token}`);
+            log(`has access_token: ${hasToken}`);
+        };
+
+        window.simulateCorruptedData = function() {
+            clear();
+            log('💥 Simulating corrupted localStorage data...\n', 'info');
+            
+            // Set corrupted data
+            localStorage.setItem('user', 'undefined');
+            localStorage.setItem('access_token', 'null');
+            localStorage.setItem('refresh_token', '{broken json}');
+            
+            log('❌ Corrupted data set:', 'error');
+            log('  user: "undefined"');
+            log('  access_token: "null"');
+            log('  refresh_token: "{broken json}"');
+            
+            log('\n🔧 Testing recovery with localStorageUtils:', 'info');
+            
+            const user = localStorageUtils.getJSON('user', null);
+            const token = localStorageUtils.getString('access_token');
+            const refresh = localStorageUtils.getJSON('refresh_token', null);
+            const hasToken = localStorageUtils.has('access_token');
+            
+            log(`\n✅ Recovery results:`, 'success');
+            log(`  user: ${JSON.stringify(user)} (expected: null)`);
+            log(`  access_token: ${token} (expected: null)`);
+            log(`  refresh_token: ${JSON.stringify(refresh)} (expected: null)`);
+            log(`  has access_token: ${hasToken} (expected: false)`);
+            
+            if (user === null && token === null && refresh === null && !hasToken) {
+                log('\n✅ SUCCESS: All corrupted data handled safely!', 'success');
+                log('The app should work correctly with this utility!', 'success');
+            } else {
+                log('\n❌ FAIL: Some corrupted data not handled correctly', 'error');
+            }
+        };
+
+        // Auto-run check on load
+        window.addEventListener('load', () => {
+            checkCurrentState();
+        });
+    </script>
+</body>
+</html>

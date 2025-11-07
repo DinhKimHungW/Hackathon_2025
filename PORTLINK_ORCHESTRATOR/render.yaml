@@ -1,0 +1,115 @@
+services:
+  # ============================================================================
+  # DATABASE - PostgreSQL
+  # ============================================================================
+  - type: pserv
+    name: portlink-db
+    env: docker
+    plan: free
+    region: singapore
+    databases:
+      - name: portlink_db
+        databaseName: portlink_orchestrator
+        user: portlink_user
+    ipAllowList: []
+
+  # ============================================================================
+  # CACHE - Redis
+  # ============================================================================
+  - type: redis
+    name: portlink-redis
+    plan: free
+    region: singapore
+    maxmemoryPolicy: noeviction
+    ipAllowList: []
+
+  # ============================================================================
+  # BACKEND API - NestJS
+  # ============================================================================
+  - type: web
+    name: portlink-backend
+    env: node
+    region: singapore
+    plan: free
+    branch: main
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DATABASE_HOST
+        fromDatabase:
+          name: portlink-db
+          property: host
+      - key: DATABASE_PORT
+        fromDatabase:
+          name: portlink-db
+          property: port
+      - key: DATABASE_USER
+        fromDatabase:
+          name: portlink-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: portlink-db
+          property: password
+      - key: DATABASE_NAME
+        value: portlink_orchestrator
+      - key: REDIS_HOST
+        fromService:
+          name: portlink-redis
+          type: redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          name: portlink-redis
+          type: redis
+          property: port
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: 1d
+      - key: JWT_REFRESH_EXPIRATION
+        value: 7d
+      - key: CORS_ORIGIN
+        sync: false
+      - key: API_PREFIX
+        value: api/v1
+      - key: SWAGGER_PATH
+        value: api/docs
+
+  # ============================================================================
+  # FRONTEND - React + Vite
+  # ============================================================================
+  - type: web
+    name: portlink-frontend
+    env: static
+    region: singapore
+    plan: free
+    branch: main
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_API_BASE_URL
+        sync: false
+      - key: VITE_WS_URL
+        sync: false
+      - key: VITE_APP_NAME
+        value: PortLink Orchestrator
+      - key: VITE_APP_VERSION
+        value: 1.0.0
+      - key: VITE_ENABLE_MOCK_DATA
+        value: false
+      - key: VITE_ENABLE_DEBUG
+        value: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

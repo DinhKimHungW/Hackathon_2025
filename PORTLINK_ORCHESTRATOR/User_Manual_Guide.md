@@ -967,23 +967,23 @@ B-06:   🔴   🟡   🟢   🟢   🟢   🟢   🔴
 ├─────────────────────────────────────────────────┤
 │                                                 │
 │ Report Type:                                    │
-│ ○ Vessel Activity Report                       │
-│ ○ Berth Utilization Report                     │
-│ ● Task Performance Report                      │
-│ ○ Conflict Resolution Report                   │
+│ ○ Vessel Activity Report                        │
+│ ○ Berth Utilization Report                      │
+│ ● Task Performance Report                       │
+│ ○ Conflict Resolution Report                    │
 │ ○ Custom Report                                 │
 │                                                 │
 │ Date Range:                                     │
-│ [01/11/2025] - [07/11/2025]                    │
+│ [01/11/2025] - [07/11/2025]                     │
 │                                                 │
 │ Format:                                         │
-│ ☑ PDF  ☑ Excel  ☐ CSV                          │
+│ ☑ PDF  ☑ Excel  ☐ CSV                         │
 │                                                 │
 │ Include:                                        │
-│ ☑ Summary Statistics                            │
-│ ☑ Charts & Graphs                               │
-│ ☑ Detailed Tables                               │
-│ ☐ Raw Data                                      │
+│ ☑ Summary Statistics                           │
+│ ☑ Charts & Graphs                              │
+│ ☑ Detailed Tables                              │
+│ ☐ Raw Data                                     │
 │                                                 │
 │ [Generate Report]                               │
 └─────────────────────────────────────────────────┘
@@ -1029,29 +1029,29 @@ B-06:   🔴   🟡   🟢   🟢   🟢   🟢   🔴
 │                                                 │
 │ ⏳ PENDING (2)                                  │
 │                                                 │
-│ #157 Customs Clearance                          │
-│ VSL-001 | Due: 16:00 | Priority: High          │
+│ #157 Customs Clearance                        │
+│ VSL-001 | Due: 16:00 | Priority: High           │
 │ [Start Task]                                    │
 │                                                 │
-│ #159 Load Cargo                                 │
-│ VSL-003 | Due: 18:00 | Priority: Normal        │
+│ #159 Load Cargo                               │
+│ VSL-003 | Due: 18:00 | Priority: Normal         │
 │ [Start Task]                                    │
 │                                                 │
 │ ────────────────────────────────────────────    │
 │                                                 │
-│ 🔄 IN PROGRESS (1)                              │
+│ 🔄 IN PROGRESS (1)                             │
 │                                                 │
-│ #156 Unload Containers        45% ████████░░   │
+│ #156 Unload Containers        45% ████████░░  │
 │ VSL-001 | Started: 14:15                        │
 │ [Update Progress]                               │
 │                                                 │
 │ ────────────────────────────────────────────    │
 │                                                 │
-│ ✅ COMPLETED TODAY (3)                          │
+│ ✅ COMPLETED TODAY (3)                         │
 │                                                 │
-│ #153 Pre-berthing Inspection ✓                 │
-│ #154 Berthing Operation ✓                      │
-│ #155 Safety Briefing ✓                         │
+│ #153 Pre-berthing Inspection ✓                │
+│ #154 Berthing Operation ✓                     │
+│ #155 Safety Briefing ✓                        │
 │                                                 │
 └─────────────────────────────────────────────────┘
 ```
@@ -1062,13 +1062,13 @@ B-06:   🔴   🟡   🟢   🟢   🟢   🟢   🔴
 
 ```
 ┌─────────────────────────────────────────────────┐
-│ Start Task #157                                 │
+│ Start Task #157                               │
 ├─────────────────────────────────────────────────┤
 │                                                 │
 │ 📋 Task: Customs Clearance                     │
-│ 🚢 Vessel: VSL-001 (MSC OSCAR)                  │
-│ ⚓ Berth: B-04                                   │
-│ ⏰ Scheduled: 05/11/2025 16:00                  │
+│ 🚢 Vessel: VSL-001 (MSC OSCAR)                 │
+│ ⚓ Berth: B-04                                 │
+│ ⏰ Scheduled: 05/11/2025 16:00                 │
 │                                                 │
 │ Description:                                    │
 │ Complete customs clearance for imported         │
@@ -1078,19 +1078,19 @@ B-06:   🔴   🟡   🟢   🟢   🟢   🟢   🔴
 │ ☐ Verify cargo manifest                        │
 │ ☐ Check customs declaration                    │
 │ ☐ Inspect random containers (5%)               │
-│ ☐ Get customs stamp                             │
-│ ☐ Update system                                 │
-│                                                 │
-│ Required Documents:                             │
+│ ☐ Get customs stamp                            │
+│ ☐ Update system                                │
+│                                                │
+│ Required Documents:                            │
 │ 📄 Manifest.pdf                                │
 │ 📄 Customs_Declaration.pdf                     │
-│                                                 │
-│ ⚠️ Important Notes:                             │
-│ - Red containers need extra inspection          │
-│ - Contact customs officer: +84-xxx-xxxx         │
-│                                                 │
+│                                                │
+│ ⚠️ Important Notes:                            │
+│ - Red containers need extra inspection         │
+│ - Contact customs officer: +84-xxx-xxxx        │
+│                                                │
 │ [Cancel]  [Start Now]                          │
-└─────────────────────────────────────────────────┘
+└────────────────────────────────────────────────┘
 ```
 
 ### 6.4. Cập nhật tiến độ

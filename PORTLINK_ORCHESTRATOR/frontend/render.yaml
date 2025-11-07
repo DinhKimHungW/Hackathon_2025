@@ -1,0 +1,21 @@
+services:
+  # Frontend Web Application
+  - type: web
+    name: portlink-frontend
+    env: static
+    region: singapore
+    plan: free
+    branch: main
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_API_BASE_URL
+        value: https://portlink-backend.onrender.com/api/v1
+      - key: VITE_WS_URL
+        value: wss://portlink-backend.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
