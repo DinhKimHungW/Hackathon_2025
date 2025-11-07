@@ -24,14 +24,15 @@ async function bootstrap() {
     // Global prefix
     app.setGlobalPrefix('api/v1');
 
+    // Heroku assigns a random port via PORT env variable
     const port = process.env.PORT || 3000;
-    await app.listen(port);
+    await app.listen(port, '0.0.0.0'); // Listen on all interfaces for Heroku
 
     console.log(`
     ╔═══════════════════════════════════════════════╗
     ║   PortLink Orchestrator API Server           ║
-    ║   Server running on: http://localhost:${port}   ║
-    ║   Environment: ${process.env.NODE_ENV || 'development'}                    ║
+    ║   Server running on port: ${port.toString().padEnd(19)} ║
+    ║   Environment: ${(process.env.NODE_ENV || 'development').padEnd(32)} ║
     ╚═══════════════════════════════════════════════╝
   `);
   } catch (error) {

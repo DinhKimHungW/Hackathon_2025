@@ -11,16 +11,38 @@ export const redisConfig = async (
   configService: ConfigService,
 ): Promise<CacheModuleOptions> => {
   try {
-    const store = await redisStore({
-      socket: {
-        host: configService.get<string>('REDIS_HOST', 'localhost'),
-        port: configService.get<number>('REDIS_PORT', 6379),
-        connectTimeout: 3000, // 3 second timeout
-      },
-      password: configService.get<string>('REDIS_PASSWORD', undefined),
-      database: configService.get<number>('REDIS_DB', 0),
-      ttl: configService.get<number>('REDIS_TTL', 3600), // 1 hour default
-    });
+    // Heroku provides REDIS_URL (or REDIS_TLS_URL) in format: redis://h:password@host:port
+    const redisUrl = configService.get<string>('REDIS_URL') || configService.get<string>('REDIS_TLS_URL');
+    
+    let redisOptions: any;
+    
+    if (redisUrl) {
+      const url = new URL(redisUrl);
+      redisOptions = {
+        socket: {
+          host: url.hostname,
+          port: parseInt(url.port || '6379', 10),
+          connectTimeout: 3000,
+          tls: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+        },
+        password: url.password || undefined,
+        database: configService.get<number>('REDIS_DB', 0),
+        ttl: configService.get<number>('REDIS_TTL', 3600),
+      };
+    } else {
+      redisOptions = {
+        socket: {
+          host: configService.get<string>('REDIS_HOST', 'localhost'),
+          port: configService.get<number>('REDIS_PORT', 6379),
+          connectTimeout: 3000,
+        },
+        password: configService.get<string>('REDIS_PASSWORD', undefined),
+        database: configService.get<number>('REDIS_DB', 0),
+        ttl: configService.get<number>('REDIS_TTL', 3600),
+      };
+    }
+    
+    const store = await redisStore(redisOptions);
 
     console.log('✅ Redis cache store connected');
     
