@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "value": "prod"
+    },
+    "location": {
+      "value": "eastasia"
+    },
+    "postgresAdminUser": {
+      "value": "portlinkadmin"
+    },
+    "postgresAdminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/{subscription-id}/resourceGroups/{rg-name}/providers/Microsoft.KeyVault/vaults/{kv-name}"
+        },
+        "secretName": "POSTGRES-PASSWORD"
+      }
+    },
+    "redisPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/{subscription-id}/resourceGroups/{rg-name}/providers/Microsoft.KeyVault/vaults/{kv-name}"
+        },
+        "secretName": "REDIS-PASSWORD"
+      }
+    },
+    "jwtSecret": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/{subscription-id}/resourceGroups/{rg-name}/providers/Microsoft.KeyVault/vaults/{kv-name}"
+        },
+        "secretName": "JWT-SECRET"
+      }
+    },
+    "jwtRefreshSecret": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/{subscription-id}/resourceGroups/{rg-name}/providers/Microsoft.KeyVault/vaults/{kv-name}"
+        },
+        "secretName": "JWT-REFRESH-SECRET"
+      }
+    },
+    "acrSku": {
+      "value": "Basic"
+    },
+    "postgresSku": {
+      "value": "Burstable"
+    },
+    "postgresSkuName": {
+      "value": "Standard_B2s"
+    },
+    "redisSku": {
+      "value": "Basic"
+    },
+    "redisCapacity": {
+      "value": 0
+    }
+  }
+}

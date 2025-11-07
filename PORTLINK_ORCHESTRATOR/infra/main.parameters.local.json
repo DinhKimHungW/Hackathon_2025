@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "value": "prod"
+    },
+    "location": {
+      "value": "eastasia"
+    },
+    "postgresAdminUser": {
+      "value": "portlinkadmin"
+    },
+    "postgresAdminPassword": {
+      "value": "THAY_DOI_PASSWORD_NAY_123!@#"
+    },
+    "redisPassword": {
+      "value": "THAY_DOI_REDIS_PASSWORD_456!@#"
+    },
+    "jwtSecret": {
+      "value": "THAY_DOI_JWT_SECRET_789!@#AbCdEfGh"
+    },
+    "jwtRefreshSecret": {
+      "value": "THAY_DOI_JWT_REFRESH_SECRET_101112!@#XyZ"
+    },
+    "acrSku": {
+      "value": "Basic"
+    },
+    "postgresSku": {
+      "value": "Burstable"
+    },
+    "postgresSkuName": {
+      "value": "Standard_B2s"
+    },
+    "redisSku": {
+      "value": "Basic"
+    },
+    "redisCapacity": {
+      "value": 0
+    }
+  }
+}

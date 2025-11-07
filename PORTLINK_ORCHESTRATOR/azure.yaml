@@ -1,0 +1,98 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: portlink-orchestrator
+metadata:
+  template: portlink-orchestrator@0.0.1
+
+# Services to deploy
+services:
+  backend:
+    project: ./backend
+    language: js
+    host: containerapp
+    docker:
+      path: ./backend/Dockerfile
+      context: ./backend
+    
+  frontend:
+    project: ./frontend
+    language: js
+    host: containerapp
+    docker:
+      path: ./frontend/Dockerfile
+      context: ./frontend
+
+# Infrastructure configuration
+infra:
+  provider: bicep
+  path: infra
+  module: main
+
+# Hooks - Run commands at specific points in the deployment lifecycle
+hooks:
+  # Run before provisioning infrastructure
+  preprovision:
+    windows:
+      shell: pwsh
+      run: |
+        Write-Host "🔍 Validating prerequisites..."
+        if (!(Get-Command az -ErrorAction SilentlyContinue)) {
+          Write-Error "Azure CLI is not installed. Please install it first."
+          exit 1
+        }
+        Write-Host "✅ Prerequisites validated"
+    posix:
+      shell: sh
+      run: |
+        echo "🔍 Validating prerequisites..."
+        if ! command -v az &> /dev/null; then
+          echo "Azure CLI is not installed. Please install it first."
+          exit 1
+        fi
+        echo "✅ Prerequisites validated"
+
+  # Run after provisioning, before deployment
+  postprovision:
+    windows:
+      shell: pwsh
+      run: |
+        Write-Host "🔧 Running post-provision setup..."
+        Write-Host "✅ Post-provision complete"
+    posix:
+      shell: sh
+      run: |
+        echo "🔧 Running post-provision setup..."
+        echo "✅ Post-provision complete"
+
+  # Run after deployment
+  postdeploy:
+    windows:
+      shell: pwsh
+      run: |
+        Write-Host ""
+        Write-Host "🎉 Deployment successful!"
+        Write-Host ""
+        Write-Host "📋 Application URLs:"
+        Write-Host "   Frontend: $(azd env get-values | Select-String 'AZURE_FRONTEND_URL' | ForEach-Object { $_.ToString().Split('=')[1].Trim('"') })"
+        Write-Host "   Backend:  $(azd env get-values | Select-String 'AZURE_BACKEND_URL' | ForEach-Object { $_.ToString().Split('=')[1].Trim('"') })"
+        Write-Host ""
+        Write-Host "🔗 Next steps:"
+        Write-Host "   1. Run database migrations: azd exec --service backend -- npm run migration:run"
+        Write-Host "   2. Seed demo data (optional): azd exec --service backend -- npm run seed:demo"
+        Write-Host "   3. Monitor logs: azd monitor --overview"
+        Write-Host ""
+    posix:
+      shell: sh
+      run: |
+        echo ""
+        echo "🎉 Deployment successful!"
+        echo ""
+        echo "📋 Application URLs:"
+        echo "   Frontend: $(azd env get-values | grep AZURE_FRONTEND_URL | cut -d'=' -f2 | tr -d '"')"
+        echo "   Backend:  $(azd env get-values | grep AZURE_BACKEND_URL | cut -d'=' -f2 | tr -d '"')"
+        echo ""
+        echo "🔗 Next steps:"
+        echo "   1. Run database migrations: azd exec --service backend -- npm run migration:run"
+        echo "   2. Seed demo data (optional): azd exec --service backend -- npm run seed:demo"
+        echo "   3. Monitor logs: azd monitor --overview"
+        echo ""

@@ -1,0 +1,47 @@
+version: '3.8'
+
+# Override for development environment
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: builder  # Use builder stage for dev
+    command: npm run start:dev
+    volumes:
+      - ./backend/src:/app/src:ro
+      - ./backend/package.json:/app/package.json:ro
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # Debug port
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: builder
+    command: npm run dev -- --host
+    volumes:
+      - ./frontend/src:/app/src:ro
+      - ./frontend/public:/app/public:ro
+      - ./frontend/index.html:/app/index.html:ro
+      - ./frontend/vite.config.ts:/app/vite.config.ts:ro
+    environment:
+      NODE_ENV: development
+    ports:
+      - "5173:5173"
+
+  postgres:
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: dev_password
+
+  redis:
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass dev_password

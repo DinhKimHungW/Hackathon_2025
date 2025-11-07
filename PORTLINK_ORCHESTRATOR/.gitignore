@@ -1,19 +1,20 @@
-# Dependencies
-node_modules/
-package-lock.json
-yarn.lock
+# ============================================================================
+# PORTLINK ORCHESTRATOR - GIT IGNORE
+# ============================================================================
 
-# Environment variables
+# Environment files
 .env
 .env.local
-.env.development
-.env.production
-.env.test
+.env.*.local
+.env.docker
 
-# Build outputs
-dist/
-build/
-*.tsbuildinfo
+# Docker
+docker-compose.override.yml
+
+# Database backups
+backups/
+*.sql
+*.dump
 
 # Logs
 logs/
@@ -21,43 +22,24 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 lerna-debug.log*
 
 # OS
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*~
 
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
-.project
-.classpath
-.settings/
-
-# Testing
-coverage/
-.nyc_output/
+*.sublime-project
+*.sublime-workspace
 
 # Temporary files
 tmp/
 temp/
 *.tmp
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# Redis
-dump.rdb
-
-# Production secrets (keep examples)
-!.env.production.example
-!.env.example
-
-# Deployment
-.vercel/
-.netlify/
+*.bak
