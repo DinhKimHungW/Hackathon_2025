@@ -81,14 +81,31 @@ docker compose logs -f
 .\verify-deployment.ps1
 ```
 
-### Phương Án 2: Render.com (Free) ☁️
+### Phương Án 2: GitHub (Tự Động Build & Deploy) 🐙
+
+```bash
+# Setup và deploy lên GitHub
+cd PORTLINK_ORCHESTRATOR
+./setup-github-deployment.sh
+
+# Sau đó push code
+git push origin main
+```
+
+**Docker images sẽ tự động build và có tại:**
+- `ghcr.io/dinhkimhungw/hackathon_2025/backend:main`
+- `ghcr.io/dinhkimhungw/hackathon_2025/frontend:main`
+
+**Xem hướng dẫn chi tiết:** [GITHUB_DEPLOYMENT.md](PORTLINK_ORCHESTRATOR/GITHUB_DEPLOYMENT.md)
+
+### Phương Án 3: Render.com (Free) ☁️
 
 1. Push code lên GitHub
 2. Đăng nhập [Render.com](https://dashboard.render.com)
 3. Tạo Blueprint deployment từ `render.yaml`
 4. Đợi deployment hoàn tất (~10 phút)
 
-### Phương Án 3: Azure 🔷
+### Phương Án 4: Azure 🔷
 
 ```bash
 # Đăng nhập Azure
@@ -101,7 +118,7 @@ cd PORTLINK_ORCHESTRATOR
 make azure-deploy   # Linux/Mac
 ```
 
-### Phương Án 4: Heroku 🟪
+### Phương Án 5: Heroku 🟪
 
 ```bash
 # Đăng nhập Heroku
@@ -118,6 +135,7 @@ git push heroku main
 
 ### Tiếng Việt
 - **[🚀 Hướng Dẫn Deploy](PORTLINK_ORCHESTRATOR/HUONG_DAN_DEPLOY.md)** - Hướng dẫn triển khai chi tiết
+- **[🐙 Deploy Lên GitHub](PORTLINK_ORCHESTRATOR/GITHUB_DEPLOYMENT.md)** - Deploy với GitHub Container Registry & GitHub Pages
 
 ### English
 - **[Quick Start](PORTLINK_ORCHESTRATOR/QUICKSTART.md)** - Get started quickly
