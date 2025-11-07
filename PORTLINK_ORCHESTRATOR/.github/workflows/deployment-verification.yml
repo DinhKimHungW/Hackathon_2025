@@ -1,0 +1,168 @@
+name: Deployment Verification
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  verify-docker-compose:
+    name: Verify Docker Compose Configuration
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Create .env file
+        run: |
+          cd PORTLINK_ORCHESTRATOR
+          cp .env.docker.example .env
+      
+      - name: Validate docker-compose.yml
+        run: |
+          cd PORTLINK_ORCHESTRATOR
+          docker compose config > /dev/null
+          echo "✓ Docker Compose configuration is valid"
+      
+      - name: Check required files
+        run: |
+          cd PORTLINK_ORCHESTRATOR
+          echo "Checking required files..."
+          
+          # Backend files
+          test -f backend/Dockerfile && echo "✓ backend/Dockerfile" || exit 1
+          test -f backend/package.json && echo "✓ backend/package.json" || exit 1
+          test -f backend/.dockerignore && echo "✓ backend/.dockerignore" || exit 1
+          
+          # Frontend files
+          test -f frontend/Dockerfile && echo "✓ frontend/Dockerfile" || exit 1
+          test -f frontend/package.json && echo "✓ frontend/package.json" || exit 1
+          test -f frontend/nginx.conf && echo "✓ frontend/nginx.conf" || exit 1
+          test -f frontend/.dockerignore && echo "✓ frontend/.dockerignore" || exit 1
+          
+          # Configuration files
+          test -f docker-compose.yml && echo "✓ docker-compose.yml" || exit 1
+          test -f .env.docker.example && echo "✓ .env.docker.example" || exit 1
+          
+          # Deployment files
+          test -f render.yaml && echo "✓ render.yaml" || exit 1
+          test -f Procfile && echo "✓ Procfile" || exit 1
+          test -f heroku.yml && echo "✓ heroku.yml" || exit 1
+          test -f azure.yaml && echo "✓ azure.yaml" || exit 1
+          
+          echo "All required files present!"
+  
+  verify-documentation:
+    name: Verify Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check documentation files
+        run: |
+          cd PORTLINK_ORCHESTRATOR
+          echo "Checking documentation..."
+          
+          test -f HUONG_DAN_DEPLOY.md && echo "✓ Vietnamese deployment guide" || exit 1
+          test -f DEPLOYMENT.md && echo "✓ Deployment documentation" || exit 1
+          test -f DOCKER_DEPLOYMENT.md && echo "✓ Docker deployment guide" || exit 1
+          test -f QUICKSTART.md && echo "✓ Quick start guide" || exit 1
+          test -f AZURE_DEPLOYMENT_GUIDE.md && echo "✓ Azure deployment guide" || exit 1
+          test -f HEROKU_DEPLOYMENT.md && echo "✓ Heroku deployment guide" || exit 1
+          
+          # Root README
+          test -f ../README.md && echo "✓ Root README.md" || exit 1
+          
+          echo "All documentation present!"
+  
+  verify-scripts:
+    name: Verify Deployment Scripts
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check deployment scripts
+        run: |
+          cd PORTLINK_ORCHESTRATOR
+          echo "Checking deployment scripts..."
+          
+          # Quick deploy scripts
+          test -f quick-deploy.sh && echo "✓ quick-deploy.sh" || exit 1
+          test -x quick-deploy.sh && echo "✓ quick-deploy.sh is executable" || exit 1
+          test -f quick-deploy.ps1 && echo "✓ quick-deploy.ps1" || exit 1
+          
+          # Verification scripts
+          test -f verify-deployment.sh && echo "✓ verify-deployment.sh" || exit 1
+          test -x verify-deployment.sh && echo "✓ verify-deployment.sh is executable" || exit 1
+          test -f verify-deployment.ps1 && echo "✓ verify-deployment.ps1" || exit 1
+          
+          # Azure deployment script
+          test -f deploy-azure.ps1 && echo "✓ deploy-azure.ps1" || exit 1
+          
+          # Makefile
+          test -f Makefile && echo "✓ Makefile" || exit 1
+          
+          echo "All deployment scripts present!"
+      
+      - name: Validate shell scripts syntax
+        run: |
+          cd PORTLINK_ORCHESTRATOR
+          echo "Validating shell scripts..."
+          
+          bash -n quick-deploy.sh && echo "✓ quick-deploy.sh syntax OK" || exit 1
+          bash -n verify-deployment.sh && echo "✓ verify-deployment.sh syntax OK" || exit 1
+          
+          echo "All shell scripts are valid!"
+
+  test-docker-build:
+    name: Test Docker Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [backend, frontend]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build ${{ matrix.service }}
+        run: |
+          cd PORTLINK_ORCHESTRATOR/${{ matrix.service }}
+          docker build -t portlink-${{ matrix.service }}:test .
+          echo "✓ ${{ matrix.service }} Docker image built successfully"
+      
+      - name: Inspect image
+        run: |
+          docker images portlink-${{ matrix.service }}:test
+          docker history portlink-${{ matrix.service }}:test
+
+  deployment-summary:
+    name: Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [verify-docker-compose, verify-documentation, verify-scripts, test-docker-build]
+    
+    steps:
+      - name: Summary
+        run: |
+          echo "╔════════════════════════════════════════════════════════════════╗"
+          echo "║   ✓ All Deployment Verification Checks Passed!                ║"
+          echo "╚════════════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "The project is ready for deployment on:"
+          echo "  • Docker (local or server)"
+          echo "  • Render.com"
+          echo "  • Heroku"
+          echo "  • Azure"
+          echo "  • GitHub Container Registry"
+          echo ""
+          echo "Use the quick-deploy scripts for easy deployment!"

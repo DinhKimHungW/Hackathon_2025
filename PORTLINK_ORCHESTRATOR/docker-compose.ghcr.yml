@@ -1,3 +1,6 @@
+# Docker Compose using GitHub Container Registry Images
+# Usage: docker-compose -f docker-compose.ghcr.yml up -d
+
 services:
   # ============================================================================
   # PostgreSQL Database
@@ -45,12 +48,11 @@ services:
       retries: 5
 
   # ============================================================================
-  # Backend API
+  # Backend API (from GitHub Container Registry)
   # ============================================================================
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    # Replace with your GitHub Container Registry image
+    image: ghcr.io/dinhkimhungw/hackathon_2025/backend:main
     container_name: portlink-backend
     restart: unless-stopped
     depends_on:
@@ -95,15 +97,11 @@ services:
       start_period: 40s
 
   # ============================================================================
-  # Frontend Web App
+  # Frontend Web App (from GitHub Container Registry)
   # ============================================================================
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000/api/v1}
-        VITE_WS_URL: ${VITE_WS_URL:-ws://localhost:3000}
+    # Replace with your GitHub Container Registry image
+    image: ghcr.io/dinhkimhungw/hackathon_2025/frontend:main
     container_name: portlink-frontend
     restart: unless-stopped
     depends_on:
