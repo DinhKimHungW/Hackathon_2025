@@ -30,6 +30,22 @@
 
 ### Phương Án 1: Docker (Khuyến Nghị) 🐳
 
+#### Triển Khai Tự Động (1 Lệnh)
+
+```bash
+# Linux/Mac
+cd PORTLINK_ORCHESTRATOR
+./quick-deploy.sh
+```
+
+```powershell
+# Windows
+cd PORTLINK_ORCHESTRATOR
+.\quick-deploy.ps1
+```
+
+#### Triển Khai Thủ Công
+
 ```bash
 # Di chuyển vào thư mục dự án
 cd PORTLINK_ORCHESTRATOR
@@ -55,6 +71,15 @@ docker compose logs -f
 **Tài khoản mặc định:**
 - Email: `admin@portlink.com`
 - Password: `Admin@123`
+
+**Kiểm tra triển khai:**
+```bash
+# Linux/Mac
+./verify-deployment.sh
+
+# Windows
+.\verify-deployment.ps1
+```
 
 ### Phương Án 2: Render.com (Free) ☁️
 
