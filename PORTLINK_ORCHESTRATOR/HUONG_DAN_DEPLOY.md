@@ -149,7 +149,10 @@ docker compose up -d
    make azure-deploy   # Linux/Mac
    ```
 
-**Xem thêm:** `AZURE_DEPLOYMENT_GUIDE.md` và `AZURE_PORTAL_DEPLOYMENT.md`
+**Xem thêm:** 
+- `AZURE_DEPLOYMENT_GUIDE.md` - Hướng dẫn tổng quan
+- `AZURE_BACKEND_DEPLOYMENT.md` - **Hướng dẫn chi tiết deploy Backend**
+- `AZURE_PORTAL_DEPLOYMENT.md` - Deploy qua Azure Portal
 
 ---
 
