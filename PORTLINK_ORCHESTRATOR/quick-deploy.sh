@@ -6,7 +6,7 @@
 # Quick deployment script for Docker
 # Usage: ./quick-deploy.sh
 
-set -e
+set -euo pipefail
 
 # Colors
 RED='\033[0;31m'

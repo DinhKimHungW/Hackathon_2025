@@ -7,7 +7,7 @@
 # Usage: ./verify-deployment.sh [backend_url] [frontend_url]
 # Example: ./verify-deployment.sh http://localhost:3000 http://localhost:8080
 
-set -e
+set -euo pipefail
 
 # Colors for output
 RED='\033[0;31m'
@@ -36,9 +36,9 @@ check_endpoint() {
     echo -n "Checking ${name}... "
     
     if command -v curl &> /dev/null; then
-        status=$(curl -s -o /dev/null -w "%{http_code}" "${url}" || echo "000")
+        status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "${url}" || echo "000")
     elif command -v wget &> /dev/null; then
-        status=$(wget --spider -S "${url}" 2>&1 | grep "HTTP/" | awk '{print $2}' | head -1 || echo "000")
+        status=$(wget --spider -S --timeout=10 "${url}" 2>&1 | grep "HTTP/" | awk '{print $2}' | head -1 || echo "000")
     else
         echo -e "${RED}SKIP${NC} (curl/wget not found)"
         return

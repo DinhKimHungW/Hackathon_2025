@@ -36,7 +36,7 @@ function Check-Endpoint {
     Write-Host "Checking $Name... " -NoNewline
 
     try {
-        $response = Invoke-WebRequest -Uri $Url -Method GET -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
+        $response = Invoke-WebRequest -Uri $Url -Method GET -UseBasicParsing -TimeoutSec 10 -MaximumRedirection 0 -ErrorAction Stop
         $status = $response.StatusCode
 
         if ($status -eq $ExpectedStatus -or $status -eq 200) {
