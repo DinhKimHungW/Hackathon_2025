@@ -15,9 +15,9 @@ import { SimulationModule } from './modules/simulation/simulation.module';
 import { KpisModule } from './modules/kpis/kpis.module';
 import { ConflictsModule } from './modules/conflicts/conflicts.module';
 import { ChatbotModule } from './modules/chatbot/chatbot.module';
+import { HealthModule } from './health/health.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
-import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -31,6 +31,7 @@ import { HealthController } from './health.controller';
       useFactory: (configService: ConfigService) => configService.get('database'),
       inject: [ConfigService],
     }),
+    HealthModule,
     AuthModule,
     UsersModule,
     AssetsModule,
@@ -44,7 +45,7 @@ import { HealthController } from './health.controller';
     ConflictsModule,
     ChatbotModule,
   ],
-  controllers: [HealthController],
+  controllers: [],
   providers: [
     {
       provide: APP_INTERCEPTOR,
