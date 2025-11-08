@@ -36,7 +36,7 @@ export const sendMessage = createAsyncThunk(
 
       console.log('📤 Sending message:', { message: content, context });
 
-      const response = await axiosInstance.post<ChatbotResponse>(
+      const response = await axiosInstance.post<{success: boolean, data: ChatbotResponse}>(
         `${CHATBOT_ENDPOINT}/chat`,
         {
           message: content,
@@ -46,7 +46,8 @@ export const sendMessage = createAsyncThunk(
 
       console.log('📥 Received response:', response.data);
 
-      return response.data;
+      // Backend returns { success, data: { message, intent, ... } }
+      return response.data.data;
     } catch (error: any) {
       console.error('❌ Send message error:', error);
       return rejectWithValue(
@@ -179,7 +180,7 @@ const chatbotSlice = createSlice({
       console.log('📨 Chatbot response:', action.payload);
 
       // Ensure we have valid content
-      const content = action.payload?.message || action.payload?.content || 'I received your message but couldn\'t generate a response.';
+      const content = action.payload?.message || 'I received your message but couldn\'t generate a response.';
 
       const assistantMessage: ChatMessage = {
         id: `assistant-${Date.now()}`,

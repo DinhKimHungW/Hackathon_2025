@@ -7,6 +7,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ChatbotService } from './chatbot.service';
+import { AIService } from './ai.service';
 import {
   ChatMessageDto,
   WhatIfScenarioDto,
@@ -20,7 +21,10 @@ import { UserRole } from '../users/entities/user.entity';
 @Controller('chatbot')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ChatbotController {
-  constructor(private readonly chatbotService: ChatbotService) {}
+  constructor(
+    private readonly chatbotService: ChatbotService,
+    private readonly aiService: AIService,
+  ) {}
 
   @Post('chat')
   @Roles(
@@ -53,5 +57,29 @@ export class ChatbotController {
     @Param('conflictId') conflictId: string,
   ): Promise<ChatbotResponseDto> {
     return this.chatbotService.getOptimizationSuggestions(conflictId);
+  }
+
+  @Get('ai/analyze-conflict/:conflictId')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.OPERATIONS)
+  async analyzeConflictWithAI(
+    @Param('conflictId') conflictId: string,
+  ): Promise<any> {
+    const result = await this.aiService.analyzeConflictWithAI(conflictId);
+    return {
+      message: result.answer,
+      confidence: result.confidence,
+      dataSources: result.dataUsed,
+    };
+  }
+
+  @Get('ai/optimize-all')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.OPERATIONS)
+  async generateOptimizations(): Promise<any> {
+    const result = await this.aiService.generateOptimizationSuggestions();
+    return {
+      message: result.answer,
+      confidence: result.confidence,
+      dataSources: result.dataUsed,
+    };
   }
 }

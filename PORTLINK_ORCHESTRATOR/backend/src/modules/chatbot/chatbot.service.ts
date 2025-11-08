@@ -9,6 +9,7 @@ import {
   WhatIfScenarioDto,
   ChatbotResponseDto,
 } from './dto/chatbot.dto';
+import { AIService } from './ai.service';
 
 @Injectable()
 export class ChatbotService {
@@ -21,6 +22,7 @@ export class ChatbotService {
     private scheduleRepo: Repository<Schedule>,
     @InjectRepository(Conflict)
     private conflictRepo: Repository<Conflict>,
+    private aiService: AIService,
   ) {}
 
   // ============================================================================
@@ -400,29 +402,54 @@ export class ChatbotService {
     };
   }
 
-  private handleGeneralQuery(
+  private async handleGeneralQuery(
     message: string,
     context?: any,
   ): Promise<ChatbotResponseDto> {
-    return Promise.resolve({
-      message:
-        `I'm your PortLink AI Assistant! I can help you with:\n\n` +
-        `📅 Schedule management\n` +
-        `🚢 Ship status tracking\n` +
-        `⚓ Berth availability\n` +
-        `⚠️ Conflict detection\n` +
-        `🎯 What-if scenarios\n` +
-        `📊 Performance KPIs\n` +
-        `💡 Optimization suggestions\n\n` +
-        `What would you like to know?`,
-      intent: 'general_query',
-      suggestions: [
-        'Show current schedule',
-        'Check for conflicts',
-        'What if scenarios',
-        'Show KPIs',
-      ],
-    });
+    try {
+      // Use AI to process the general query with real project data
+      const aiResponse = await this.aiService.processQueryWithAI(
+        message,
+        context,
+      );
+
+      return {
+        message: aiResponse.answer,
+        intent: 'ai_powered_query',
+        data: {
+          confidence: aiResponse.confidence,
+          dataSources: aiResponse.dataUsed,
+        },
+        suggestions: [
+          'Show current schedule',
+          'Check for conflicts',
+          'Analyze conflicts with AI',
+          'Suggest optimizations',
+        ],
+      };
+    } catch (error) {
+      this.logger.error(`AI query failed: ${error.message}`);
+      // Fallback to default response
+      return {
+        message:
+          `I'm your PortLink AI Assistant! I can help you with:\n\n` +
+          `📅 Schedule management\n` +
+          `🚢 Ship status tracking\n` +
+          `⚓ Berth availability\n` +
+          `⚠️ Conflict detection\n` +
+          `🎯 What-if scenarios\n` +
+          `📊 Performance KPIs\n` +
+          `💡 Optimization suggestions\n\n` +
+          `What would you like to know?`,
+        intent: 'general_query',
+        suggestions: [
+          'Show current schedule',
+          'Check for conflicts',
+          'What if scenarios',
+          'Show KPIs',
+        ],
+      };
+    }
   }
 
   // ============================================================================

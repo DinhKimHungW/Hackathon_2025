@@ -24,6 +24,7 @@ import {
   Lightbulb,
   AutoGraph,
   Warning,
+  Psychology,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -48,9 +49,14 @@ interface MessageProps {
 function ChatMessageBubble({ message }: MessageProps) {
   const [showMetadata, setShowMetadata] = useState(false);
   const isUser = message.role === 'user';
+  
+  // Check if this is an AI-powered response (intent is 'ai_powered_query')
+  const isAIPowered = !isUser && message.intent === 'ai_powered_query';
 
   const getIntentIcon = () => {
     switch (message.intent) {
+      case 'ai_powered_query':
+        return <Psychology fontSize="small" sx={{ color: '#9c27b0' }} />;
       case 'what_if_scenario':
         return <AutoGraph fontSize="small" />;
       case 'conflict_detection':
@@ -79,12 +85,14 @@ function ChatMessageBubble({ message }: MessageProps) {
 
       <Box sx={{ maxWidth: '70%' }}>
         <Paper
-          elevation={1}
+          elevation={isAIPowered ? 3 : 1}
           sx={{
             p: 1.5,
-            bgcolor: isUser ? 'primary.main' : 'background.paper',
+            bgcolor: isUser ? 'primary.main' : (isAIPowered ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'background.paper'),
+            background: isAIPowered ? 'linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%)' : undefined,
             color: isUser ? 'primary.contrastText' : 'text.primary',
             borderRadius: 2,
+            border: isAIPowered ? '2px solid #9c27b0' : undefined,
             ...(isUser && {
               borderTopRightRadius: 4,
             }),
@@ -93,6 +101,23 @@ function ChatMessageBubble({ message }: MessageProps) {
             }),
           }}
         >
+          {/* AI Badge for AI-powered responses */}
+          {isAIPowered && (
+            <Chip
+              icon={<Psychology fontSize="small" />}
+              label="AI-Powered"
+              size="small"
+              sx={{
+                mb: 1,
+                bgcolor: '#9c27b0',
+                color: 'white',
+                fontWeight: 'bold',
+                fontSize: '0.65rem',
+                height: 20,
+              }}
+            />
+          )}
+          
           <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
             {message.content}
           </Typography>
@@ -198,9 +223,9 @@ export default function ChatbotWidget() {
   };
 
   const quickActions = [
-    'Show current schedule',
-    'Check for conflicts',
-    'What if MV Ocean Star delays 2 hours?',
+    'Tóm tắt tình hình cảng hiện tại',
+    'Có bao nhiêu tàu đang ở cảng?',
+    'Phân tích conflicts cho tôi',
     'Show berth availability',
     'Display KPIs',
   ];
@@ -223,18 +248,31 @@ export default function ChatbotWidget() {
       <Box
         sx={{
           p: 2,
-          bgcolor: 'primary.main',
-          color: 'primary.contrastText',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
           display: 'flex',
           alignItems: 'center',
           gap: 1,
         }}
       >
-        <SmartToy />
+        <Psychology sx={{ fontSize: 32 }} />
         <Box sx={{ flex: 1 }}>
-          <Typography variant="h6">PortLink AI Assistant</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="h6">PortLink AI Assistant</Typography>
+            <Chip
+              label="AI"
+              size="small"
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                fontWeight: 'bold',
+                fontSize: '0.7rem',
+                height: 20,
+              }}
+            />
+          </Box>
           <Typography variant="caption">
-            {isConnected ? 'Connected' : 'Disconnected'}
+            {isConnected ? '🟢 AI Connected' : '🔴 Disconnected'}
           </Typography>
         </Box>
         <Tooltip title="Clear chat">
@@ -290,13 +328,24 @@ export default function ChatbotWidget() {
             }}
           >
             <Box>
-              <SmartToy sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+              <Psychology sx={{ fontSize: 80, color: '#9c27b0', mb: 2 }} />
               <Typography variant="h6" color="text.secondary" gutterBottom>
                 Welcome to PortLink AI
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Ask me anything about schedules, ships, berths, or run what-if scenarios!
+                Ask me anything in Vietnamese or English! I use real project data with AI.
               </Typography>
+              <Chip
+                icon={<Psychology />}
+                label="Powered by GitHub Models AI"
+                size="small"
+                sx={{ 
+                  mt: 2,
+                  bgcolor: '#9c27b0',
+                  color: 'white',
+                  fontWeight: 'bold',
+                }}
+              />
             </Box>
           </Box>
         ) : (
